@@ -3,30 +3,23 @@ using DG.Tweening;
 
 public sealed class BoatWaveVisual : MonoBehaviour
 {
-	[Header("References")]
 	[SerializeField] Transform cameraTransform;
 
-	[Header("Bobbing")]
 	[SerializeField] float bobHeight = 0.15f;
 	[SerializeField] float bobDuration = 2.2f;
 
-	[Header("Rotation - Pitch (X)")]
 	[SerializeField] float pitchIntensity = 2.5f;
 	[SerializeField] float pitchDuration = 3.0f;
 
-	[Header("Rotation - Roll (Z)")]
 	[SerializeField] float rollIntensity = 3.5f;
 	[SerializeField] float rollDuration = 2.6f;
 
-	[Header("Rotation - Yaw (Y)")]
 	[SerializeField] float yawIntensity = 1.2f;
 	[SerializeField] float yawDuration = 4.5f;
 
-	[Header("Camera Influence")]
 	[Range(0f, 1f)]
 	[SerializeField] float cameraInfluence = 0.4f;
 
-	[Header("Sea State")]
 	[SerializeField] float intensityMultiplier = 1f;
 
 	Vector3 initialLocalPos;
@@ -68,6 +61,12 @@ public sealed class BoatWaveVisual : MonoBehaviour
 		transform.localPosition = initialLocalPos;
 		transform.localEulerAngles = baseEuler;
 	}
+
+	public void SetCamera(Transform t)
+	{
+		cameraTransform = t;
+	}
+
 	void StartBobbing()
 	{
 		float phase = Random.value;
@@ -126,7 +125,14 @@ public sealed class BoatWaveVisual : MonoBehaviour
 
 	void ApplyRotation()
 	{
-		Vector3 camDir = cameraTransform ? cameraTransform.forward : Vector3.forward;
+		Vector3 camDir;
+		if (cameraTransform)
+			camDir = cameraTransform.forward;
+		else if (Camera.main)
+			camDir = Camera.main.transform.forward;
+		else
+			camDir = Vector3.forward;
+
 		camDir.y = 0f;
 		camDir.Normalize();
 

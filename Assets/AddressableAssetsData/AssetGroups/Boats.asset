@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Boats
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Boats
+  m_GUID: 6c6a7b42079167a4facf3e7fc5032d4f
+  m_SerializeEntries:
+  - m_GUID: a5aef112518dde6489249c57dc6bcd21
+    m_Address: Assets/Prefabs/Boats/BoatRenderer.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e1b0eaa1d420be9418676d32684ce047
+    m_Address: Assets/Prefabs/Boats/BoatRenderer (1).prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3403f63e785bce0498586fe734317370, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: a8836a0e876506249bb336049e566da8, type: 2}
+    - {fileID: 11400000, guid: 91ce9f0379df0ef41ab8467c82932019, type: 2}

@@ -8,11 +8,29 @@ using DG.Tweening;
 
 public sealed class StoreUIController : MonoBehaviour
 {
+	[Header("Catalog")]
+	[SerializeField] private StoreCatalogSO catalog;
+
+	[Header("Store Panel Animation")]
+	[SerializeField] private CanvasGroup storeGroup;
+	[SerializeField] private RectTransform storeRoot;
+	[SerializeField] private bool startHidden = false;
+	[SerializeField] private bool disableOnHide = true;
+	[SerializeField] private bool blockRaycastsWhenHidden = true;
+	[SerializeField] private float showDuration = 0.22f;
+	[SerializeField] private float hideDuration = 0.18f;
+	[SerializeField] private float showSlideY = -24f;
+	[SerializeField] private float hideSlideY = -18f;
+	[SerializeField] private float showStartScale = 0.98f;
+	[SerializeField] private float hideEndScale = 0.99f;
+	[SerializeField] private Ease showEase = Ease.OutCubic;
+	[SerializeField] private Ease hideEase = Ease.InCubic;
+
+	[Header("StoreEquipActionReceiver")]
+	[SerializeField] private StoreEquipActionReceiver equipActionReceiver;
+
 	[Header("Categories")]
 	[SerializeField] private List<StoreCategoryButton> categoryButtons;
-
-	[Header("Items")]
-	[SerializeField] private List<StoreItemSO> allItems;
 
 	[Header("Grid")]
 	[SerializeField] private Transform itemGridRoot;
@@ -98,12 +116,21 @@ public sealed class StoreUIController : MonoBehaviour
 	private float coinsIconBaseAlpha = 1f;
 	private float pearlsIconBaseAlpha = 1f;
 
+	private Tween storeTween;
+	private Vector2 storeBasePos;
+	private Vector3 storeBaseScale;
+	private bool storeVisible = true;
+
 	private void Awake()
 	{
 		grid = itemGridRoot != null ? itemGridRoot.GetComponent<GridLayoutGroup>() : null;
 		gridRect = itemGridRoot as RectTransform;
 
 		CacheCurrencyBases();
+		CacheStoreBases();
+
+		if (equipActionReceiver == null)
+			equipActionReceiver = FindFirstObjectByType<StoreEquipActionReceiver>();
 
 		if (feedbackGroup != null)
 		{
@@ -128,8 +155,177 @@ public sealed class StoreUIController : MonoBehaviour
 			storeService = new StoreService(fallback);
 		}
 
-		if (categoryButtons != null && categoryButtons.Count > 0 && categoryButtons[0] != null)
-			SelectCategory(categoryButtons[0].Id);
+		TriggerEquippedActionsFromSave();
+
+		currentCategory = GetFirstCategoryOrDefault();
+		SelectCategory(currentCategory);
+
+		if (startHidden) ApplyHiddenInstant();
+		else ApplyShownInstant();
+	}
+
+	private StoreCategoryId GetFirstCategoryOrDefault()
+	{
+		if (categoryButtons != null)
+		{
+			for (int i = 0; i < categoryButtons.Count; i++)
+			{
+				var b = categoryButtons[i];
+				if (b != null)
+					return b.Id;
+			}
+		}
+
+		if (catalog != null && catalog.Categories != null && catalog.Categories.Count > 0)
+			return catalog.Categories[0];
+
+		return default;
+	}
+
+	private void CacheStoreBases()
+	{
+		if (storeRoot == null)
+			storeRoot = transform as RectTransform;
+
+		if (storeGroup == null)
+			storeGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+
+		if (storeRoot != null)
+		{
+			storeBasePos = storeRoot.anchoredPosition;
+			storeBaseScale = storeRoot.localScale;
+		}
+	}
+
+	private void ApplyHiddenInstant()
+	{
+		storeVisible = false;
+
+		if (disableOnHide && storeGroup != null)
+			storeGroup.gameObject.SetActive(false);
+
+		if (storeGroup != null)
+		{
+			storeGroup.alpha = 0f;
+			storeGroup.interactable = !blockRaycastsWhenHidden;
+			storeGroup.blocksRaycasts = !blockRaycastsWhenHidden;
+		}
+
+		if (storeRoot != null)
+		{
+			storeRoot.anchoredPosition = storeBasePos + new Vector2(0f, hideSlideY);
+			storeRoot.localScale = storeBaseScale * hideEndScale;
+		}
+	}
+
+	private void ApplyShownInstant()
+	{
+		storeVisible = true;
+
+		if (storeGroup != null)
+		{
+			storeGroup.gameObject.SetActive(true);
+			storeGroup.alpha = 1f;
+			storeGroup.interactable = true;
+			storeGroup.blocksRaycasts = true;
+		}
+
+		if (storeRoot != null)
+		{
+			storeRoot.anchoredPosition = storeBasePos;
+			storeRoot.localScale = storeBaseScale;
+		}
+	}
+
+	public void ShowStore()
+	{
+		if (storeVisible)
+			return;
+
+		storeVisible = true;
+
+		storeTween?.Kill();
+		storeTween = null;
+
+		if (storeGroup == null || storeRoot == null)
+		{
+			ApplyShownInstant();
+			return;
+		}
+
+		storeGroup.gameObject.SetActive(true);
+		storeGroup.interactable = false;
+		storeGroup.blocksRaycasts = false;
+
+		storeGroup.alpha = 0f;
+		storeRoot.anchoredPosition = storeBasePos + new Vector2(0f, showSlideY);
+		storeRoot.localScale = storeBaseScale * showStartScale;
+
+		var seq = DOTween.Sequence().SetUpdate(true);
+		seq.Join(storeGroup.DOFade(1f, showDuration));
+		seq.Join(storeRoot.DOAnchorPos(storeBasePos, showDuration).SetEase(showEase));
+		seq.Join(storeRoot.DOScale(storeBaseScale, showDuration).SetEase(showEase));
+
+		seq.OnComplete(() =>
+		{
+			if (storeGroup != null)
+			{
+				storeGroup.interactable = true;
+				storeGroup.blocksRaycasts = true;
+			}
+		});
+
+		storeTween = seq;
+	}
+
+	public void HideStore()
+	{
+		if (!storeVisible)
+			return;
+
+		storeVisible = false;
+
+		storeTween?.Kill();
+		storeTween = null;
+
+		if (storeGroup == null || storeRoot == null)
+		{
+			ApplyHiddenInstant();
+			return;
+		}
+
+		storeGroup.interactable = false;
+		storeGroup.blocksRaycasts = false;
+
+		var seq = DOTween.Sequence().SetUpdate(true);
+		seq.Join(storeGroup.DOFade(0f, hideDuration));
+		seq.Join(storeRoot.DOAnchorPos(storeBasePos + new Vector2(0f, hideSlideY), hideDuration).SetEase(hideEase));
+		seq.Join(storeRoot.DOScale(storeBaseScale * hideEndScale, hideDuration).SetEase(hideEase));
+
+		seq.OnComplete(() =>
+		{
+			if (storeGroup == null) return;
+
+			storeGroup.interactable = !blockRaycastsWhenHidden;
+			storeGroup.blocksRaycasts = !blockRaycastsWhenHidden;
+
+			if (disableOnHide)
+				storeGroup.gameObject.SetActive(false);
+
+			if (storeRoot != null)
+			{
+				storeRoot.anchoredPosition = storeBasePos;
+				storeRoot.localScale = storeBaseScale;
+			}
+		});
+
+		storeTween = seq;
+	}
+
+	public void ToggleStore()
+	{
+		if (storeVisible) HideStore();
+		else ShowStore();
 	}
 
 	private void CacheCurrencyBases()
@@ -193,6 +389,7 @@ public sealed class StoreUIController : MonoBehaviour
 		pearlsTween?.Kill();
 		coinsIconTween?.Kill();
 		pearlsIconTween?.Kill();
+		storeTween?.Kill();
 	}
 
 	private void OnCoinsChanged(int value)
@@ -215,10 +412,7 @@ public sealed class StoreUIController : MonoBehaviour
 			foreach (var b in categoryButtons)
 				if (b != null) b.SetSelected(b.Id == category);
 
-		var filtered = (allItems ?? new List<StoreItemSO>())
-			.Where(i => i != null && i.category == category)
-			.OrderBy(i => i.displayName)
-			.ToList();
+		var filtered = GetItemsForCategory(category);
 
 		if (!animateOnRebuild)
 		{
@@ -230,6 +424,14 @@ public sealed class StoreUIController : MonoBehaviour
 			StopCoroutine(transitionRoutine);
 
 		transitionRoutine = StartCoroutine(TransitionTo(filtered));
+	}
+
+	private List<StoreItemSO> GetItemsForCategory(StoreCategoryId category)
+	{
+		if (catalog != null)
+			return catalog.GetItems(category);
+
+		return new List<StoreItemSO>();
 	}
 
 	private IEnumerator TransitionTo(List<StoreItemSO> items)
@@ -372,7 +574,7 @@ public sealed class StoreUIController : MonoBehaviour
 
 		if (success)
 		{
-			storeService.Equip(item);
+			EquipInternal(item);
 
 			if (card != null)
 			{
@@ -394,13 +596,30 @@ public sealed class StoreUIController : MonoBehaviour
 		if (item == null || storeService == null)
 			return;
 
-		storeService.Equip(item);
+		EquipInternal(item);
 
 		var card = FindCard(item);
 		if (card != null)
 			card.PlayEquipAnim();
 
 		RefreshAllCards();
+	}
+
+	private void EquipInternal(StoreItemSO item)
+	{
+		storeService.Equip(item);
+		InvokeEquipAction(item);
+	}
+
+	private void InvokeEquipAction(StoreItemSO item)
+	{
+		if (equipActionReceiver == null)
+			equipActionReceiver = FindFirstObjectByType<StoreEquipActionReceiver>();
+
+		if (equipActionReceiver == null)
+			return;
+
+		equipActionReceiver.TryInvoke(item);
 	}
 
 	private void AnimateBuyCurrency(CurrencyType currency)
@@ -577,6 +796,43 @@ public sealed class StoreUIController : MonoBehaviour
 			var c = pooledCards[i];
 			if (c != null && c.gameObject.activeInHierarchy)
 				c.Refresh();
+		}
+	}
+
+	private void TriggerEquippedActionsFromSave()
+	{
+		if (storeService == null || catalog == null)
+			return;
+
+		if (equipActionReceiver == null)
+			equipActionReceiver = FindFirstObjectByType<StoreEquipActionReceiver>();
+
+		if (equipActionReceiver == null)
+			return;
+
+		var cats = catalog.Categories;
+		if (cats == null)
+			return;
+
+		for (int c = 0; c < cats.Count; c++)
+		{
+			var category = cats[c];
+			var items = catalog.GetItems(category);
+			if (items == null)
+				continue;
+
+			for (int i = 0; i < items.Count; i++)
+			{
+				var item = items[i];
+				if (item == null)
+					continue;
+
+				if (storeService.IsEquipped(item))
+				{
+					equipActionReceiver.TryInvoke(item);
+					break;
+				}
+			}
 		}
 	}
 }

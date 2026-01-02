@@ -5,7 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 	[SerializeField] private FishingSystem fishingSystem;
-
+	[SerializeField] private BoatInput boatInput;
 	public PlayerMode CurrentMode { get; private set; }
 
 	public event Action<PlayerMode> OnModeChanged;
@@ -51,6 +51,8 @@ public class Player : MonoBehaviour
 
 		CurrentMode = newMode;
 		OnModeChanged?.Invoke(CurrentMode);
+
+		boatInput.SmoothStop();
 
 		switch (CurrentMode)
 		{

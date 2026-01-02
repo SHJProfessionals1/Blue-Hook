@@ -33,6 +33,9 @@ public sealed class BoatCamera : MonoBehaviour
 
 		if (!boat)
 			boat = FindFirstObjectByType<BoatController>();
+
+		if (!target)
+			target = FindFirstObjectByType<BoatWaveVisual>().transform;
 	}
 
 	void OnEnable()

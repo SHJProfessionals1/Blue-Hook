@@ -1,41 +1,41 @@
-using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
-using System;
+using UnityEngine;
 
-public sealed class BoatUI : MonoBehaviour
+public class CaptainStatusHUD : MonoBehaviour
 {
 	[SerializeField] Rigidbody boatRb;
 	[SerializeField] BoatFuel fuel;
-	[SerializeField] BoatController boat;
 	[SerializeField] TMP_Text speedText;
-	[SerializeField] TMP_Text angleText;
-	[SerializeField] Slider fuelSlider;
+	[SerializeField] TMP_Text fuelText;
+	[SerializeField] TMP_Text coinsText;
 
 	void OnEnable()
 	{
 		fuel.OnFuelChanged += UpdateFuelUI;
+		EconomyManager.Instance.CoinsChanged += UpdateCoinsUI;
 		UpdateFuelUI(fuel.CurrentFuel, fuel.MaxFuel);
+		UpdateCoinsUI(EconomyManager.Instance.Coins);
 	}
 
 	void OnDisable()
 	{
 		fuel.OnFuelChanged -= UpdateFuelUI;
+		EconomyManager.Instance.CoinsChanged -= UpdateCoinsUI;
 	}
 
 	void Update()
 	{
 		float speedKmh = boatRb.linearVelocity.magnitude * 3.6f;
 		speedText.text = Mathf.RoundToInt(speedKmh) + " km/h";
-
-		float angularY = boatRb.angularVelocity.y;
-		float degreesPerSecond = MathF.Abs(angularY * Mathf.Rad2Deg);
-
-		angleText.text = degreesPerSecond.ToString("0.0") + "°/s";
 	}
-
 	void UpdateFuelUI(float current, float max)
 	{
-		fuelSlider.value = current / max;
+		int percent = Mathf.RoundToInt((current / max) * 100f);
+		fuelText.text = percent + "%";
+	}
+
+	void UpdateCoinsUI(int coins)
+	{
+		coinsText.text = coins.ToString();
 	}
 }

@@ -16,18 +16,23 @@ public sealed class CurvedSteering : MonoBehaviour,
 	[SerializeField] float returnSmoothTime = 0.15f;
 
 	bool isDragging;
+	bool inputEnabled = true;
+
 	float steering;
 	float steeringVelocity;
 
-	public float Steering => steering;
+	public float Steering => inputEnabled ? steering : 0f;
 
 	void Start()
 	{
-		SetKnobFromSteering(0f);
+		ResetSteeringImmediate();
 	}
 
 	void Update()
 	{
+		if (!inputEnabled)
+			return;
+
 		if (isDragging)
 			return;
 
@@ -47,8 +52,32 @@ public sealed class CurvedSteering : MonoBehaviour,
 		SetKnobFromSteering(steering);
 	}
 
+	public void SetInputEnabled(bool enabled, bool resetToCenter = true)
+	{
+		inputEnabled = enabled;
+
+		if (!enabled)
+		{
+			isDragging = false;
+			steeringVelocity = 0f;
+
+			if (resetToCenter)
+				ResetSteeringImmediate();
+		}
+	}
+
+	public void ResetSteeringImmediate()
+	{
+		steering = 0f;
+		steeringVelocity = 0f;
+		SetKnobFromSteering(0f);
+	}
+
 	public void OnPointerDown(PointerEventData eventData)
 	{
+		if (!inputEnabled)
+			return;
+
 		if (!RectTransformUtility.RectangleContainsScreenPoint(
 			knob,
 			eventData.position,
@@ -62,7 +91,7 @@ public sealed class CurvedSteering : MonoBehaviour,
 
 	public void OnDrag(PointerEventData eventData)
 	{
-		if (!isDragging)
+		if (!inputEnabled || !isDragging)
 			return;
 
 		UpdateKnob(eventData);

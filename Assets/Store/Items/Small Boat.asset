@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StoreItemSO
   itemId: BOATS_SMALL_BOAT_112E557C
   displayName: Small Boat
+  assetPrefab:
+    m_AssetGUID: a5aef112518dde6489249c57dc6bcd21
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
   category: 0
   icon: {fileID: 21300000, guid: d0106aea85c43254bbfa119e6e82d125, type: 3}
   currency: 1

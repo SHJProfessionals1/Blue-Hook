@@ -1,62 +1,59 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
+using DG.Tweening;
 
 public sealed class BoatInput : MonoBehaviour, IBoatInput
 {
 	[SerializeField] Slider throttleSlider;
 	[SerializeField] CurvedSteering steeringWheel;
 
-	float sliderValue;
-
 	const float StopCenter = 22.5f;
-	const float StopSnapRange = 15f;
+	const float StopDuration = 0.25f;
+
+	float sliderValue;
+	UnityAction<float> sliderListener;
+
+	Tween stopTween;
 
 	void Awake()
 	{
-		if (throttleSlider)
-		{
-			throttleSlider.minValue = 0f;
-			throttleSlider.maxValue = 100f;
-			throttleSlider.value = StopCenter;
+		if (!throttleSlider)
+			return;
 
-			sliderValue = throttleSlider.value;
-			SnapToStopIfClose();
+		throttleSlider.minValue = 0f;
+		throttleSlider.maxValue = 100f;
 
-			throttleSlider.onValueChanged.AddListener(v =>
+		sliderListener = v => sliderValue = v;
+		throttleSlider.onValueChanged.AddListener(sliderListener);
+
+		SmoothStop();
+	}
+
+	public float Throttle =>
+		throttleSlider
+			? MapThrottle(sliderValue)
+			: Input.GetAxis("Vertical");
+
+	public float Steering =>
+		steeringWheel
+			? steeringWheel.Steering
+			: Input.GetAxis("Horizontal");
+
+	public void SmoothStop()
+	{
+		stopTween?.Kill();
+
+		stopTween = DOTween.To(
+			() => sliderValue,
+			v =>
 			{
 				sliderValue = v;
-			});
-		}
-	}
-
-	public float Throttle
-	{
-		get
-		{
-			if (throttleSlider)
-				return MapThrottle(sliderValue);
-
-#if UNITY_EDITOR || UNITY_STANDALONE
-			return Input.GetAxis("Vertical");
-#else
-			return 0f;
-#endif
-		}
-	}
-
-	public float Steering
-	{
-		get
-		{
-			if (steeringWheel)
-				return steeringWheel.Steering;
-
-#if UNITY_EDITOR || UNITY_STANDALONE
-			return Input.GetAxis("Horizontal");
-#else
-			return 0f;
-#endif
-		}
+				throttleSlider.SetValueWithoutNotify(v);
+			},
+			StopCenter,
+			StopDuration
+		).SetEase(Ease.OutCubic);
 	}
 
 	float MapThrottle(float value)
@@ -68,17 +65,5 @@ public sealed class BoatInput : MonoBehaviour, IBoatInput
 			return 0f;
 
 		return Mathf.Lerp(0f, 1f, (value - 35f) / 65f);
-	}
-
-	void SnapToStopIfClose()
-	{
-		if (!throttleSlider)
-			return;
-
-		if (Mathf.Abs(throttleSlider.value - StopCenter) <= StopSnapRange)
-		{
-			throttleSlider.value = StopCenter;
-			sliderValue = StopCenter;
-		}
 	}
 }

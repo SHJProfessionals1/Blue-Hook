@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 [CreateAssetMenu(menuName = "Store/Item")]
 public sealed class StoreItemSO : ScriptableObject
@@ -8,6 +9,7 @@ public sealed class StoreItemSO : ScriptableObject
 	public string ItemId => itemId;
 
 	public string displayName;
+	public AssetReferenceGameObject assetPrefab;
 	public StoreCategoryId category;
 	public Sprite icon;
 
@@ -48,10 +50,7 @@ public sealed class StoreItemSO : ScriptableObject
 
 			if (other.itemId == itemId)
 			{
-				Debug.LogError(
-					$"[STORE] Duplicate Item ID detected!\nID: {itemId}\nA: {name}\nB: {other.name}",
-					this
-				);
+				Debug.LogError($"Duplicate StoreItemSO ID detected: {itemId}", this);
 				return;
 			}
 		}

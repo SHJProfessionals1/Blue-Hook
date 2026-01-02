@@ -15,13 +15,13 @@ MonoBehaviour:
   m_GroupName: Boats
   m_GUID: 6c6a7b42079167a4facf3e7fc5032d4f
   m_SerializeEntries:
-  - m_GUID: a5aef112518dde6489249c57dc6bcd21
-    m_Address: Assets/Prefabs/Boats/BoatRenderer.prefab
+  - m_GUID: 054928ca5541db840bc6cc6f481848b3
+    m_Address: Assets/Prefabs/Boats/Creek Runner.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e1b0eaa1d420be9418676d32684ce047
-    m_Address: Assets/Prefabs/Boats/BoatRenderer (1).prefab
+  - m_GUID: a5aef112518dde6489249c57dc6bcd21
+    m_Address: Assets/Prefabs/Boats/Drift Skiff.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

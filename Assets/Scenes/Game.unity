@@ -1067,7 +1067,7 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-  - item: {fileID: 11400000, guid: 7d4811775ba37ad4f8c52ad5139d1494, type: 2}
+  - item: {fileID: 11400000, guid: 667510ddaf5e9364d9e52b69a7fbf2b1, type: 2}
     onEquipped:
       m_PersistentCalls:
         m_Calls:
@@ -1076,7 +1076,7 @@ MonoBehaviour:
           m_MethodName: EquipBoatFromStoreItem
           m_Mode: 2
           m_Arguments:
-            m_ObjectArgument: {fileID: 11400000, guid: 7d4811775ba37ad4f8c52ad5139d1494, type: 2}
+            m_ObjectArgument: {fileID: 11400000, guid: 667510ddaf5e9364d9e52b69a7fbf2b1, type: 2}
             m_ObjectArgumentAssemblyTypeName: StoreItemSO, Assembly-CSharp
             m_IntArgument: 0
             m_FloatArgument: 0
@@ -9929,11 +9929,11 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
-  - m_AssetGUID: e1b0eaa1d420be9418676d32684ce047
+  - m_AssetGUID: 054928ca5541db840bc6cc6f481848b3
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
-    m_EditorAssetChanged: 1
+    m_EditorAssetChanged: 0
   boatParent: {fileID: 4023150395218628774}
 --- !u!4 &1894938764
 Transform:

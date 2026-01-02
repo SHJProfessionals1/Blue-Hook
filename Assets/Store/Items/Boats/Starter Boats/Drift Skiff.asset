@@ -10,11 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e2635532fc300847b8957844bad5c74, type: 3}
-  m_Name: Small Boat 2
+  m_Name: Drift Skiff
   m_EditorClassIdentifier: Assembly-CSharp::StoreItemSO
-  itemId: BOATS_SMALL_BOAT_112E557E
-  displayName: Small Boatrr
+  itemId: BOATS_SMALL_BOAT_112E557C
+  displayName: Drift Skiff
+  assetPrefab:
+    m_AssetGUID: a5aef112518dde6489249c57dc6bcd21
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
   category: 0
-  icon: {fileID: 21300000, guid: d0106aea85c43254bbfa119e6e82d125, type: 3}
+  icon: {fileID: 21300000, guid: 43c683270a16a8140afd8174bb3e526b, type: 3}
   currency: 0
-  price: 800
+  price: 0
